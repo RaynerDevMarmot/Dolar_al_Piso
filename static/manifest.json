@@ -1,0 +1,21 @@
+{
+  "name": "Conversor BCV",
+  "short_name": "BCV Converter",
+  "description": "Conversor de moneda dólar a bolívar con tasa BCV en tiempo real y modo offline.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#00ff6e",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

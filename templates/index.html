@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor BCV</title>
+
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#00ff6e"/>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  
+  <style>
+    /* Estilos globales para el cuerpo de la página */
+    body {
+      background-color: #121212; /* Fondo muy oscuro */
+      color: #fff; /* Texto blanco */
+      font-family: 'Segoe UI', sans-serif;
+    }
+    /* Contenedor principal de la aplicación */
+    .container {
+      max-width: 400px; /* Ancho máximo del contenedor */
+      margin-top: 50px; /* Margen superior para centrar verticalmente */
+    }
+    /* Estilo para el círculo del logo */
+    .logo-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%; /* Forma circular */
+      border: 3px solid #00ff6e; /* Borde verde vibrante */
+      display: flex; /* Para centrar el ícono */
+      align-items: center; /* Centrado vertical */
+      justify-content: center; /* Centrado horizontal */
+      font-size: 40px; /* Tamaño del ícono */
+      margin: 0 auto 10px auto; /* Centrado horizontal y margen inferior */
+      color: white; /* Color del ícono */
+    }
+    /* Estilo para el título de la aplicación */
+    .app-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 1px; /* Espaciado entre letras */
+      margin-bottom: 10px;
+    }
+    /* Estilos para los campos de entrada y selección */
+    .form-control, .form-select {
+      background-color: #1f1f1f; /* Fondo ligeramente oscuro */
+      border: none; /* Sin borde */
+      color: white; /* Texto blanco */
+    }
+    /* Estilo al enfocar los campos de entrada y selección */
+    .form-control:focus, .form-select:focus {
+      background-color: #1f1f1f; /* Mantener el fondo oscuro al enfocar */
+      color: white; /* Mantener el texto blanco al enfocar */
+      box-shadow: 0 0 0 0.25rem rgba(0, 255, 110, 0.25); /* Sombra verde sutil al enfocar */
+    }
+    /* Estilo para el botón de conversión */
+    .btn-convertir {
+      background-color: #00ff6e; /* Color de fondo verde */
+      border: none;
+      color: black; /* Texto negro para alto contraste */
+      font-weight: bold;
+      transition: background-color 0.3s ease; /* Transición suave para el efecto hover */
+    }
+    /* Efecto al pasar el ratón por encima del botón */
+    .btn-convertir:hover {
+      background-color: #00e663; /* Un verde ligeramente más oscuro */
+    }
+    /* Estilo para el contenedor del resultado */
+    .result {
+      text-align: center;
+      font-size: 20px;
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #1f1f1f; /* Fondo para el bloque de resultado */
+      border-radius: 8px; /* Bordes redondeados */
+    }
+    /* Estilo para el pie de página */
+    .footer {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 30px;
+      color: #ccc; /* Texto gris claro */
+    }
+    /* Estilo específico para las alertas de error */
+    .alert-danger {
+      background-color: #3b0000; /* Fondo más oscuro para la alerta de error */
+      color: #ffcccc; /* Texto más claro para la alerta de error */
+      border-color: #ff0000; /* Borde rojo */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="logo-circle">
+      <i class="fas fa-dollar-sign"></i>
+    </div>
+    <div class="app-title">DOLAR AL PISO</div>
+
+    <form method="post" class="mt-4">
+      <div class="mb-3">
+        <label for="amountInput" class="form-label">Monto</label>
+        <input type="text" name="amount" id="amountInput" class="form-control" placeholder="Ej: 10.000,50" value="{{.FormattedInput}}" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="directionSelect" class="form-label">Conversión</label>
+        <select name="direction" id="directionSelect" class="form-select">
+          <option value="usd_to_bs" {{if eq .Direction "usd_to_bs"}}selected{{end}}>$ → Bs</option>
+          <option value="bs_to_usd" {{if eq .Direction "bs_to_usd"}}selected{{end}}>Bs → $</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-convertir w-100">Calcular</button>
+    </form>
+
+    {{if .Converted}}
+    <div class="result mt-4">
+      <i class="fas fa-check-circle text-success"></i><br>
+      Resultado: <strong>{{.FormattedConverted}}</strong>
+    </div>
+    {{end}}
+
+    {{if .ErrorMessage}}
+    <div class="alert alert-danger mt-3 text-center">
+      {{.ErrorMessage}}
+    </div>
+    {{end}}
+
+    <div class="footer">
+      Última tasa BCV: <strong>{{.FormattedRate}}</strong><br>
+      <i class="fas fa-sync-alt"></i> Actualizado: {{.LastUpdated}}
+    </div>
+  </div>
+
+  <script>
+    // Comprueba si el navegador soporta Service Workers
+    if ('serviceWorker' in navigator) {
+      // Registra el Service Worker una vez que la página ha cargado completamente
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado con éxito. Alcance:', registration.scope);
+          })
+          .catch(error => {
+            console.error('Fallo el registro del Service Worker:', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
